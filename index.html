@@ -164,6 +164,12 @@
     }
 
     setInterval(createHeart, 300);
+   const music = document.getElementById("bgMusic");
+
+document.addEventListener("click", () => {
+    music.muted = false;
+    music.play();
+}, { once: true });
 </script>
 
 </body>
