@@ -1,10 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Be My Valentine</title>
-
+<title>Be My Valentine 💖</title>
 <style>
 * {
     margin: 0;
@@ -15,23 +13,30 @@
 
 body {
     height: 100vh;
-    background: linear-gradient(135deg, #ffd6e8, #ffc2d1, #ffb3c6);
+    background: radial-gradient(circle at center, #ffdde1, #fef2f2);
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
     text-align: center;
 }
 
 .container {
     position: relative;
-    z-index: 2;
+    z-index: 10;
 }
 
 h1 {
-    font-size: 2.8rem;
+    font-size: 3rem;
     color: #c9184a;
     margin-bottom: 30px;
+    text-shadow: 0 0 15px #ff4d6d, 0 0 30px #ff85a2;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 15px #ff4d6d, 0 0 30px #ff85a2; }
+    to { text-shadow: 0 0 25px #ff6a85, 0 0 50px #ffb3c6; }
 }
 
 .buttons {
@@ -48,23 +53,24 @@ button {
     border-radius: 30px;
     cursor: pointer;
     position: absolute;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
 #yesBtn {
-    background: #ff4d6d;
+    background: linear-gradient(135deg, #ff4d6d, #ff85a2);
     color: white;
     left: 40px;
     top: 50px;
-    box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+    text-shadow: 0 0 5px #fff;
 }
-
 #yesBtn:hover {
-    transform: scale(1.1);
+    transform: scale(1.15) rotate(-2deg);
+    box-shadow: 0 10px 20px rgba(255, 77, 109, 0.5);
 }
 
 #noBtn {
-    background: #6c757d;
+    background: linear-gradient(135deg, #6c757d, #a0a5ab);
     color: white;
     left: 180px;
     top: 50px;
@@ -80,14 +86,9 @@ button {
 }
 
 @keyframes float {
-    from {
-        transform: translateY(100vh);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(-10vh);
-        opacity: 1;
-    }
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
 }
 
 /* Confetti */
@@ -115,12 +116,33 @@ button {
     from { transform: scale(0.5); }
     to { transform: scale(1); }
 }
+
+/* Typing effect */
+#message {
+    font-size: 1.5rem;
+    color: #c9184a;
+    margin-top: 20px;
+    min-height: 50px;
+}
+
+/* Background particles */
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.7;
+    pointer-events: none;
+    animation: particleMove linear infinite;
+}
+
+@keyframes particleMove {
+    from { transform: translateY(100vh) scale(0); opacity: 0; }
+    to { transform: translateY(-10vh) scale(1); opacity: 1; }
+}
+
 </style>
 </head>
-
 <body>
 
-<!-- Music (file must be in same folder) -->
 <audio id="bgMusic" autoplay loop muted>
     <source src="The Ronettes - Be My Baby.mp3" type="audio/mpeg">
 </audio>
@@ -131,6 +153,7 @@ button {
         <button id="yesBtn">YES</button>
         <button id="noBtn">NO</button>
     </div>
+    <div id="message"></div>
 </div>
 
 <script>
@@ -139,44 +162,44 @@ const yesBtn = document.getElementById("yesBtn");
 const container = document.querySelector(".buttons");
 const mainContent = document.getElementById("mainContent");
 const music = document.getElementById("bgMusic");
+const message = document.getElementById("message");
 
-// Enable sound after first tap
+// Enable sound after first click
 document.addEventListener("click", () => {
     music.muted = false;
     music.play();
 }, { once: true });
 
-// NO button runs away faster each time
-let speed = 1;
-
+// NO button avoids mouse with exponential speed
+let speed = 1.2;
 noBtn.addEventListener("mouseover", () => {
     const maxX = container.offsetWidth - noBtn.offsetWidth;
     const maxY = container.offsetHeight - noBtn.offsetHeight;
-
     const randomX = Math.random() * maxX;
     const randomY = Math.random() * maxY;
-
     noBtn.style.left = randomX + "px";
     noBtn.style.top = randomY + "px";
-
-    speed += 0.5;
-    noBtn.style.transition = "all " + (0.2 / speed) + "s";
+    speed += 0.2;
+    noBtn.style.transition = "all " + (0.15 / speed) + "s";
 });
 
-// YES clicked
+// YES button clicked
 yesBtn.addEventListener("click", () => {
-    music.muted = false;
-    music.play();
-
-    mainContent.innerHTML = `
-        <div class="success">
-            💕 I love you, Amanda! 💕<br><br>
-            You just made me the happiest person ❤️
-        </div>
-    `;
-
+    mainContent.innerHTML = `<div class="success">💕 I love you, Amanda! 💕</div><div id="message"></div>`;
+    typeMessage("You just made me the happiest person ❤️");
     launchConfetti();
 });
+
+// Typing effect
+function typeMessage(text) {
+    let index = 0;
+    const messageDiv = document.getElementById("message");
+    const interval = setInterval(() => {
+        messageDiv.textContent += text[index];
+        index++;
+        if(index === text.length) clearInterval(interval);
+    }, 70);
+}
 
 // Floating hearts
 function createHeart() {
@@ -184,28 +207,40 @@ function createHeart() {
     heart.classList.add("heart");
     heart.innerHTML = "❤";
     heart.style.left = Math.random() * 100 + "vw";
-    heart.style.fontSize = (Math.random() * 20 + 10) + "px";
+    heart.style.fontSize = (Math.random() * 25 + 10) + "px";
     heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
     document.body.appendChild(heart);
-
     setTimeout(() => heart.remove(), 6000);
 }
-setInterval(createHeart, 300);
+setInterval(createHeart, 200);
 
 // Confetti effect
 function launchConfetti() {
     const emojis = ["💖","💕","💗","💘","💝","❤️"];
-    for (let i = 0; i < 80; i++) {
+    for(let i=0;i<100;i++){
         const confetti = document.createElement("div");
         confetti.classList.add("confetti");
-        confetti.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.animationDuration = (Math.random() * 2 + 2) + "s";
+        confetti.innerHTML = emojis[Math.floor(Math.random()*emojis.length)];
+        confetti.style.left = Math.random()*100 + "vw";
+        confetti.style.animationDuration = (Math.random()*2+2) + "s";
         document.body.appendChild(confetti);
-
-        setTimeout(() => confetti.remove(), 3000);
+        setTimeout(() => confetti.remove(), 4000);
     }
 }
+
+// Background particle effect
+function createParticle() {
+    const particle = document.createElement("div");
+    particle.classList.add("particle");
+    particle.style.width = particle.style.height = (Math.random()*10 + 5) + "px";
+    particle.style.background = `rgba(255, ${Math.floor(Math.random()*150+100)}, ${Math.floor(Math.random()*150+100)}, 0.7)`;
+    particle.style.left = Math.random()*100 + "vw";
+    particle.style.animationDuration = (Math.random()*3 + 3) + "s";
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 6000);
+}
+setInterval(createParticle, 150);
+
 </script>
 
 </body>
